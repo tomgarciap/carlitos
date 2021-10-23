@@ -8,6 +8,10 @@ model-es/
 model/
 model-en/
 
+# Custom files
+created_sounds/
+downloaded_sounds/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -6,6 +6,9 @@ import recognizer
 import tts
 import asyncio
 import json
+import sound_maker
+
+WAKE_WITH_SOUND = True
 
 
 def int_or_str(text):
@@ -85,10 +88,13 @@ async def app():
                                                  args.wake_word,
                                                  args.device_index,
                                                  args.samplerate)
-            await tts.say("yeah, I hear you baby")
+            if WAKE_WITH_SOUND:
+                sound_maker.make_wake_sound()
+            else:
+                await tts.say("yeah, I hear you baby")
             human_phrase = recognizer.recognize_mic_stream(args.model_path,
-                                                          args.samplerate,
-                                                          args.device_index)
+                                                           args.samplerate,
+                                                           args.device_index)
             print(f'la frase humana {str(human_phrase)}')
             phrase_object = json.loads(human_phrase)
             if phrase_object["text"] == '':
