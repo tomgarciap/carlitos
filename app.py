@@ -104,7 +104,6 @@ async def app():
                 continue
             await tts.say(phrase_object["text"])
         except KeyboardInterrupt:
-            await tts.say('see you next time, bitch')
             print('Stopping ...')
         finally:
             # call delete() method on all instances?
