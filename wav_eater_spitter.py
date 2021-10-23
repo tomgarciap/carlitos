@@ -1,7 +1,3 @@
-from scipy.io.wavfile import read
-import numpy
-import scipy
-
 
 def crop(from_sec, to_sec, file_path):
     print ("Not implemented")

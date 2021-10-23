@@ -3,7 +3,6 @@ import queue
 import sounddevice as sd
 import vosk
 import sys
-import os
 
 
 def recognize_mic_stream(model_path,

@@ -1,11 +1,14 @@
+# External modules
 import os
 import sounddevice as sd
 import argparse
+import asyncio
+import json
+
+# App modules
 import wait_for_wake_word_state
 import recognizer
 import tts
-import asyncio
-import json
 import sound_maker
 
 WAKE_WITH_SOUND = True
@@ -35,8 +38,8 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     '-am', '--assitant_mode', type=int,
     help='modo del asistente: 0 reconocedor general, 1 reconocer de wake word (default carlitos), '
-         '2 modo sleep con deteccion de wake word',
-    default=0)
+         '2 modo asistente repetidor de frases',
+    default=2)
 
 parser.add_argument(
     '-ww', '--wake_word', type=str,
