@@ -1,8 +1,18 @@
+# Mac
+.DS_Store
+# Py charm
+.idea
+
+# Acoustic model
+model-es/
+model/
+model-en/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-.idea
+
 # C extensions
 *.so
 
