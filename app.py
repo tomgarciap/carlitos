@@ -3,6 +3,9 @@ import sounddevice as sd
 import argparse
 import wait_for_wake_word_state
 import recognizer
+import tts
+import asyncio
+import json
 
 
 def int_or_str(text):
@@ -70,14 +73,36 @@ if args.assitant_mode == 1:
                                                     args.samplerate,
                                                     args.device_index,
                                                     args.wake_word)
-if args.assitant_mode == 2:
+
+exitParameter = 0
+
+
+async def app():
     print("corriendo asistente")
-    exitParameter = wait_for_wake_word_state.enter_state(args.model_path,
-                                                         args.wake_word,
-                                                         args.device_index,
-                                                         args.samplerate)
-    humanPhrase = recognizer.recognize_mic_stream(args.model_path,
-                                                  args.samplerate,
-                                                  args.device_index)
-    print(f'la frase humana {humanPhrase}')
+    while True:
+        try:
+            wait_for_wake_word_state.enter_state(args.model_path,
+                                                 args.wake_word,
+                                                 args.device_index,
+                                                 args.samplerate)
+            await tts.say("yeah, I hear you baby")
+            human_phrase = recognizer.recognize_mic_stream(args.model_path,
+                                                          args.samplerate,
+                                                          args.device_index)
+            print(f'la frase humana {str(human_phrase)}')
+            phrase_object = json.loads(human_phrase)
+            if phrase_object["text"] == '':
+                continue
+            await tts.say(phrase_object["text"])
+        except KeyboardInterrupt:
+            await tts.say('see you next time, bitch')
+            print('Stopping ...')
+        finally:
+            # call delete() method on all instances?
+            print('Fiuff finally..')
+
+
+if args.assitant_mode == 2:
+    asyncio.run(app())
+
 parser.exit(exitParameter)
