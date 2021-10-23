@@ -1,20 +1,16 @@
 import os
 import sounddevice as sd
 import argparse
+import wait_for_wake_word_state
 import recognizer
 
 
 def int_or_str(text):
-    """Helper function 1 for argument parsing."""
+    """Helper function for argument parsing."""
     try:
         return int(text)
     except ValueError:
         return text
-
-
-def string_to_array_like_string(argument_value):
-    """Helper function 2 for argument parsing."""
-    return f'["{argument_value}"]'
 
 
 parser = argparse.ArgumentParser(add_help=False)
@@ -31,7 +27,13 @@ parser = argparse.ArgumentParser(
     parents=[parser])
 
 parser.add_argument(
-    '-ww', '--wake_word', type=string_to_array_like_string,
+    '-am', '--assitant_mode', type=int,
+    help='modo del asistente: 0 reconocedor general, 1 reconocer de wake word (default carlitos), '
+         '2 modo sleep con deteccion de wake word',
+    default=0)
+
+parser.add_argument(
+    '-ww', '--wake_word', type=str,
     help='la o las palabras para que el asistente de voz empiece a escuchar '
          'instrucciones',
     default='che carlitos')
@@ -45,9 +47,9 @@ parser.add_argument(
 parser.add_argument(
     '-d', '--device_index', type=int_or_str,
     help='input device index (numeric ID or substring). Ejecutá este programa con el parametro --list-devices para '
-         'ver la lista de dispositivos de audio de la maquina que estas usando')
+         'ver la lista de dispositivos de audio de la maquina que estas usando', default=0)
 parser.add_argument(
-    '-r', '--samplerate', type=int, help='sampling rate')
+    '-r', '--samplerate', type=int, help='sampling rate', default=44100)
 
 args = parser.parse_args(remaining)
 if not os.path.exists(args.model_path):
@@ -55,9 +57,27 @@ if not os.path.exists(args.model_path):
     print("Y unzipealo en esta misma carpeta y cambiale el nombre a model-es.")
     parser.exit(0)
 
-exitParameter = recognizer.recognize_mic_stream(args.model_path,
-                                                args.samplerate,
-                                                args.device_index,
-                                                args.filename,
-                                                args.wake_word)
+exitParameter = 0
+if args.assitant_mode == 0:
+    print("corriendo el reconocedor general")
+    exitParameter = recognizer.recognize_mic_stream(args.model_path,
+                                                    args.samplerate,
+                                                    args.device_index)
+
+if args.assitant_mode == 1:
+    print("corriendo el reconocedor de wake word")
+    exitParameter = recognizer.recognize_mic_stream(args.model_path,
+                                                    args.samplerate,
+                                                    args.device_index,
+                                                    args.wake_word)
+if args.assitant_mode == 2:
+    print("corriendo asistente")
+    exitParameter = wait_for_wake_word_state.enter_state(args.model_path,
+                                                         args.wake_word,
+                                                         args.device_index,
+                                                         args.samplerate)
+    humanPhrase = recognizer.recognize_mic_stream(args.model_path,
+                                                  args.samplerate,
+                                                  args.device_index)
+    print(f'la frase humana {humanPhrase}')
 parser.exit(exitParameter)
