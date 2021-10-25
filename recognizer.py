@@ -8,7 +8,8 @@ import sys
 def recognize_mic_stream(model_path,
                          samplerate,
                          device_index,
-                         wake_word=None):
+                         wake_word=None,
+                         only_one=False):
     q = queue.Queue()
 
     def callback(indata, frames, time, status):
@@ -36,7 +37,9 @@ def recognize_mic_stream(model_path,
             while True:
                 data = q.get()
                 if rec.AcceptWaveform(data):
-                    return rec.Result()
+                    if only_one:
+                        return rec.Result()
+                    print(rec.Result())
                 else:
                     print(rec.PartialResult())
 

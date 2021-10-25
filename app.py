@@ -97,7 +97,8 @@ async def app():
                 await tts.say("yeah, I hear you baby")
             human_phrase = recognizer.recognize_mic_stream(args.model_path,
                                                            args.samplerate,
-                                                           args.device_index)
+                                                           args.device_index,
+                                                           None, True)
             print(f'la frase humana {str(human_phrase)}')
             phrase_object = json.loads(human_phrase)
             if phrase_object["text"] == '':
