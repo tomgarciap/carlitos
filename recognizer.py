@@ -3,12 +3,27 @@ import queue
 import sounddevice as sd
 import vosk
 import sys
+import json
 
 
-def recognize_mic_stream(model_path,
+def string_to_array_like_string(argument_value):
+    return f'["{argument_value}"]'
+
+
+def create_model(model_path):
+    return vosk.Model(model_path)
+
+
+def create_recognizer(model, samplerate, word=None):
+    if word is not None:
+        return vosk.KaldiRecognizer(model, samplerate, string_to_array_like_string(word))
+    else:
+        return vosk.KaldiRecognizer(model, samplerate)
+
+
+def recognize_mic_stream(recognizerI,
                          samplerate,
                          device_index,
-                         wake_word=None,
                          only_one=False):
     q = queue.Queue()
 
@@ -22,26 +37,24 @@ def recognize_mic_stream(model_path,
         if samplerate is None:
             device_info = sd.query_devices(device_index, 'input')
             samplerate = int(device_info['default_samplerate'])
-
-        model = vosk.Model(model_path)
         with sd.RawInputStream(samplerate=samplerate, blocksize=8000, device=device_index, dtype='int16',
                                channels=1, callback=callback):
             print('#' * 80)
             print('Ejecutá el comando Ctrl+C para frenar la grabación')
             print('#' * 80)
-            if wake_word:
-                rec = vosk.KaldiRecognizer(model, samplerate, wake_word)
-            else:
-                rec = vosk.KaldiRecognizer(model, samplerate)
 
             while True:
                 data = q.get()
-                if rec.AcceptWaveform(data):
+                if recognizerI.AcceptWaveform(data):
                     if only_one:
-                        return rec.Result()
-                    print(rec.Result())
+                        phrase_object = json.loads(recognizerI.Result())
+                        if phrase_object["text"] == '':
+                            continue
+                        else:
+                            return phrase_object["text"]
+                    print(recognizerI.Result())
                 else:
-                    print(rec.PartialResult())
+                    print(recognizerI.PartialResult())
 
     except KeyboardInterrupt:
         print('\nDone')

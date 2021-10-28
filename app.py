@@ -69,41 +69,39 @@ if not os.path.exists(args.model_path):
 exitParameter = 0
 if args.assitant_mode == 0:
     print("corriendo el reconocedor general")
-    exitParameter = recognizer.recognize_mic_stream(args.model_path,
+    model1 = recognizer.create_model(args.model_path)
+    exitParameter = recognizer.recognize_mic_stream(recognizer.create_recognizer(model1, args.samplerate),
                                                     args.samplerate,
                                                     args.device_index)
 
 if args.assitant_mode == 1:
     print("corriendo el reconocedor de wake word")
-    exitParameter = recognizer.recognize_mic_stream(args.model_path,
+    model1 = recognizer.create_model(args.model_path)
+    exitParameter = recognizer.recognize_mic_stream(recognizer.create_recognizer(model1, args.samplerate, args.wake_word),
                                                     args.samplerate,
-                                                    args.device_index,
-                                                    args.wake_word)
-
-exitParameter = 0
+                                                    args.device_index)
 
 
 async def app():
     print("corriendo asistente")
+    model11 = recognizer.create_model(args.model_path)
+    model2 = recognizer.create_model(args.model_path)
+    recognizers = {
+        "wake_word": recognizer.create_recognizer(model11, args.samplerate, args.wake_word),
+        "general": recognizer.create_recognizer(model2, args.samplerate)
+    }
     while True:
         try:
-            wait_for_wake_word_state.enter_state(args.model_path,
+            wait_for_wake_word_state.enter_state(recognizers["wake_word"],
                                                  args.wake_word,
                                                  args.device_index,
                                                  args.samplerate)
-            if WAKE_WITH_SOUND:
-                sound_maker.make_wake_sound()
-            else:
-                await tts.say("yeah, I hear you baby")
-            human_phrase = recognizer.recognize_mic_stream(args.model_path,
+            sound_maker.make_wake_sound()
+            human_phrase = recognizer.recognize_mic_stream(recognizers["general"],
                                                            args.samplerate,
                                                            args.device_index,
-                                                           None, True)
+                                                           True)
             print(f'la frase humana {str(human_phrase)}')
-            phrase_object = json.loads(human_phrase)
-            if phrase_object["text"] == '':
-                continue
-            await tts.say(phrase_object["text"])
         except KeyboardInterrupt:
             print('Stopping ...')
         finally:
