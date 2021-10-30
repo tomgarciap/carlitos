@@ -14,14 +14,14 @@ def create_model(model_path):
     return vosk.Model(model_path)
 
 
-def create_recognizer(model, samplerate, word=None):
+def create_recognizer(model, samplerate, word=None) -> vosk.KaldiRecognizer:
     if word is not None:
         return vosk.KaldiRecognizer(model, samplerate, string_to_array_like_string(word))
     else:
         return vosk.KaldiRecognizer(model, samplerate)
 
 
-def recognize_mic_stream(recognizerI,
+def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
                          samplerate,
                          device_index,
                          only_one=False):
@@ -55,9 +55,10 @@ def recognize_mic_stream(recognizerI,
                     print(recognizerI.Result())
                 else:
                     print(recognizerI.PartialResult())
-
-    except KeyboardInterrupt:
-        print('\nDone')
-        return 0
+                
     except Exception as e:
         return type(e).__name__ + ': ' + str(e)
+    finally:
+        recognizerI.Reset()
+        return None
+

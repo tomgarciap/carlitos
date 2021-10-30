@@ -84,11 +84,10 @@ if args.assitant_mode == 1:
 
 async def app():
     print("corriendo asistente")
-    model11 = recognizer.create_model(args.model_path)
-    model2 = recognizer.create_model(args.model_path)
+    model = recognizer.create_model(args.model_path)
     recognizers = {
-        "wake_word": recognizer.create_recognizer(model11, args.samplerate, args.wake_word),
-        "general": recognizer.create_recognizer(model2, args.samplerate)
+        "wake_word": recognizer.create_recognizer(model, args.samplerate, args.wake_word),
+        "general": recognizer.create_recognizer(model, args.samplerate)
     }
     while True:
         try:
@@ -103,10 +102,9 @@ async def app():
                                                            True)
             print(f'la frase humana {str(human_phrase)}')
         except KeyboardInterrupt:
-            print('Stopping ...')
-        finally:
-            # call delete() method on all instances?
-            print('Fiuff finally..')
+            print("\nExiting...")
+            break            
+    exit()
 
 
 if args.assitant_mode == 2:

@@ -2,19 +2,20 @@ from threading import Thread
 import queue
 import sounddevice as sd
 import sys
+import vosk 
 
 
 class WakeWordAwaitingState(Thread):
 
     def __init__(
             self,
-            recognizerI,
+            recognizerI: vosk.KaldiRecognizer,
             device_index,
             samplerate,
             wake_word):
         super(WakeWordAwaitingState, self).__init__()
         self._wake_word = wake_word
-        self._recognizerI = recognizerI
+        self._recognizerI: vosk.KaldiRecognizer = recognizerI
         self._device_index = device_index
         self._samplerate = samplerate
 
@@ -47,10 +48,9 @@ class WakeWordAwaitingState(Thread):
                         rec_result = self._recognizerI.PartialResult()
                         if self._wake_word in rec_result:
                             return
-        except KeyboardInterrupt:
-            print('Stopping ...')
         finally:
             # call delete() method on all instances?
+            self._recognizerI.Reset()
             print('Fiuff finally..')
 
 
