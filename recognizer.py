@@ -37,10 +37,11 @@ def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
         if samplerate is None:
             device_info = sd.query_devices(device_index, 'input')
             samplerate = int(device_info['default_samplerate'])
+        phrase = ""
         with sd.RawInputStream(samplerate=samplerate, blocksize=8000, device=device_index, dtype='int16',
                                channels=1, callback=callback):
             print('#' * 80)
-            print('Ejecutá el comando Ctrl+C para frenar la grabación')
+            print('Grabando.. Tirar CTRL + C para salir de la app.')
             print('#' * 80)
 
             while True:
@@ -51,7 +52,8 @@ def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
                         if phrase_object["text"] == '':
                             continue
                         else:
-                            return phrase_object["text"]
+                            phrase = phrase_object["text"]
+                            return
                     print(recognizerI.Result())
                 else:
                     print(recognizerI.PartialResult())
@@ -60,5 +62,5 @@ def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
         return type(e).__name__ + ': ' + str(e)
     finally:
         recognizerI.Reset()
-        return None
+        return phrase
 

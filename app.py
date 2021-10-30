@@ -10,6 +10,7 @@ import wait_for_wake_word_state
 import recognizer
 import tts
 import sound_maker
+import spanish_understander
 
 WAKE_WITH_SOUND = True
 
@@ -101,6 +102,8 @@ async def app():
                                                            args.device_index,
                                                            True)
             print(f'la frase humana {str(human_phrase)}')
+            print(f'numeros de la frase {str(spanish_understander.extract_integers_from_phrase(human_phrase))}')
+
         except KeyboardInterrupt:
             print("\nExiting...")
             break            
