@@ -51,7 +51,7 @@ class WakeWordAwaitingState(Thread):
         finally:
             # call delete() method on all instances?
             self._recognizerI.Reset()
-            print('Fiuff finally..')
+            print('Resetting wake word recognizer..')
 
 
 def enter_state(recognizerI, wake_word, device_index, samplerate):

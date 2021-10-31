@@ -19,13 +19,16 @@ NUMEROS = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "oc
            "ochocientos", "ochocientas",
                           "novecientos", "novecientas"]
 
-PRE_DECIMALES = ["ciento", "mil", "millon", "billon", "trillon"]
+PRE_DECIMALES = ["ciento", "mil", "millón", "millones", "billón", "billones", "trillón", "trillones"]
 PRE_DECIMALES_MULTIPLICADOR = {
     "ciento": 100,
     "mil": 1000,
-    "millon": 1000000,
-    "billon": 1000000000,
-    "trillon": 1000000000000
+    "millón": 1000000,
+    "millones": 1000000,
+    "billón": 1000000000,
+    "billones": 1000000000,
+    "trillón": 1000000000000,
+    "trillones": 1000000000000
 }
 NUMEROS_EN_ENTEROS = {
     "cero": 0,
@@ -114,8 +117,10 @@ def extract_integers_from_phrase(phrase):
         return []
     numeric_in_phrase = []
     number_blocks_buffer = []
+    index = 0
     for word in words:
         if len(word) <= 2:
+            index += 1
             continue
         if is_a_number(word) or is_a_pre_decimal(word):
             number_blocks_buffer.append(word)
@@ -123,8 +128,11 @@ def extract_integers_from_phrase(phrase):
             if len(number_blocks_buffer) != 0:
                 numeric_in_phrase.append(number_blocks_buffer)
             number_blocks_buffer = []
-        if is_a_number(word) and len(number_blocks_buffer) == 1 and words[::-1].index(word) == 0:
+        if is_a_number(word) and len(number_blocks_buffer) == 1 and index == (len(words) + 1):
             numeric_in_phrase.append(number_blocks_buffer)
+        if len(number_blocks_buffer) >= 1 and index + 1 == len(words):
+            numeric_in_phrase.append(number_blocks_buffer)
+        index += 1
     integers = []
     for number_block in numeric_in_phrase:
         if len(number_block) == 0:
@@ -133,22 +141,39 @@ def extract_integers_from_phrase(phrase):
             integers.append(get_integer_from_numeric_word(number_block[0]))
         else:
             final_integer = 0
+            index = 0
+            skip_next_pre_decimal = False
             for numeric in number_block:
+                if skip_next_pre_decimal and is_a_pre_decimal(numeric):
+                    skip_next_pre_decimal = False
+                    index += 1
+                    continue
                 if is_a_pre_decimal(numeric):
                     if final_integer == 0:
                         final_integer = get_pre_decimal_multiplicator(numeric)
                     elif final_integer > 0:
-                        if number_block[::-1].index(numeric) == 0:
+                        if index + 1 == len(number_block):
                             final_integer *= get_pre_decimal_multiplicator(numeric)
                         else:
                             final_integer += get_pre_decimal_multiplicator(numeric)
                 elif is_a_number(numeric):
-                    final_integer += NUMEROS_EN_ENTEROS[numeric]
+                    if index + 1 == len(number_block):
+                        final_integer += get_integer_from_numeric_word(numeric)
+                    elif is_a_pre_decimal(number_block[index + 1]):
+                        skip_next_pre_decimal = True
+                        final_integer += (get_integer_from_numeric_word(numeric) * get_pre_decimal_multiplicator(number_block[index + 1]))
+                    else: 
+                        final_integer += get_integer_from_numeric_word(numeric)
                 else:
                     raise Exception("La palabra no es un numero ni un pre decimal")
+                index += 1
             integers.append(final_integer)
     return integers
 
 
 if __name__ == "__main__":
-    print(extract_integers_from_phrase("tengo ochocientas cuarenta y dos abejas en el panal dos"))
+    test = "test"
+    # print(extract_integers_from_phrase("tengo ochocientas cuarenta y dos abejas en el panal dos"))
+    # print(extract_integers_from_phrase("cuanto es cuatro mil ochocientos noventa y cuatro mas doce mil doscientos mas "
+    #                                    "cuatrocientos noventa y seis"))
+    #print(extract_integers_from_phrase("dos millones trescientos treinta y tres mil cuatrocientos noventa y cuatro"))

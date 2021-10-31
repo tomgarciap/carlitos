@@ -62,5 +62,6 @@ def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
         return type(e).__name__ + ': ' + str(e)
     finally:
         recognizerI.Reset()
+        print("Resetting general recognizer.. ")
         return phrase
 
