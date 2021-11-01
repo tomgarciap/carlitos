@@ -6,17 +6,13 @@ import sys
 import json
 
 
-def string_to_array_like_string(argument_value):
-    return f'["{argument_value}"]'
-
-
 def create_model(model_path):
     return vosk.Model(model_path)
 
 
-def create_recognizer(model, samplerate, word=None) -> vosk.KaldiRecognizer:
-    if word is not None:
-        return vosk.KaldiRecognizer(model, samplerate, string_to_array_like_string(word))
+def create_recognizer(model, samplerate, words) -> vosk.KaldiRecognizer:
+    if len(words) != 0:
+        return vosk.KaldiRecognizer(model, samplerate, str(words).replace("'", '"'))
     else:
         return vosk.KaldiRecognizer(model, samplerate)
 
@@ -24,7 +20,7 @@ def create_recognizer(model, samplerate, word=None) -> vosk.KaldiRecognizer:
 def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
                          samplerate,
                          device_index,
-                         only_one=False):
+                         return_phrase=False):
     q = queue.Queue()
 
     def callback(indata, frames, time, status):
@@ -45,9 +41,9 @@ def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
             print('#' * 80)
 
             while True:
-                data = q.get()
-                if recognizerI.AcceptWaveform(data):
-                    if only_one:
+                mic_data = q.get()
+                if recognizerI.AcceptWaveform(mic_data):
+                    if return_phrase:
                         phrase_object = json.loads(recognizerI.Result())
                         if phrase_object["text"] == '':
                             continue

@@ -1,3 +1,4 @@
+OPERADORES_MATEMATICOS = ["más", "dividido", "por", "sobre"]
 NUMEROS = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce",
            "trece",
            "catorce", "quince", "dieciseis", "diecisiete", "dieciocho", "diecinueve", "veinte",
@@ -81,6 +82,10 @@ NUMEROS_EN_ENTEROS = {
     "novecientos": 900,
     "novecientas": 900
 }
+
+
+def get_domain_dictionary():
+    return NUMEROS + PRE_DECIMALES + OPERADORES_MATEMATICOS
 
 
 def is_a_number(word):

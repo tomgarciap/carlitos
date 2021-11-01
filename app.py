@@ -78,34 +78,42 @@ if args.assitant_mode == 0:
 if args.assitant_mode == 1:
     print("corriendo el reconocedor de wake word")
     model1 = recognizer.create_model(args.model_path)
-    exitParameter = recognizer.recognize_mic_stream(recognizer.create_recognizer(model1, args.samplerate, args.wake_word),
-                                                    args.samplerate,
-                                                    args.device_index)
+    exitParameter = recognizer.recognize_mic_stream(
+        recognizer.create_recognizer(model1, args.samplerate, args.wake_word),
+        args.samplerate,
+        args.device_index)
+model = recognizer.create_model(args.model_path)
+recognizers = {
+    "wake_word": recognizer.create_recognizer(model, args.samplerate, [args.wake_word]),
+    "general": recognizer.create_recognizer(model, args.samplerate, []),
+    "calculator_mode": recognizer.create_recognizer(model, args.samplerate,
+                                                    spanish_numbers_understander.get_domain_dictionary())
+}
 
 
 async def app():
     print("corriendo asistente")
-    model = recognizer.create_model(args.model_path)
-    recognizers = {
-        "wake_word": recognizer.create_recognizer(model, args.samplerate, args.wake_word),
-        "general": recognizer.create_recognizer(model, args.samplerate)
-    }
     while True:
         try:
-            wait_for_wake_word_state.enter_state(recognizers["wake_word"],
-                                                 args.wake_word,
-                                                 args.device_index,
-                                                 args.samplerate)
-            sound_maker.make_wake_sound()
-            human_phrase = recognizer.recognize_mic_stream(recognizers["general"],
-                                                           args.samplerate,
-                                                           args.device_index,
-                                                           True)
-            print(f'la frase humana {str(human_phrase)}')
-            print(f'numeros de la frase {str(spanish_numbers_understander.extract_integers_from_phrase(human_phrase))}')
+            # wait_for_wake_word_state.enter_state(recognizers["wake_word"],
+            #                                      args.wake_word,
+            #                                      args.device_index,
+            #                                      args.samplerate)
+            # sound_maker.make_wake_sound()
+            # human_phrase = recognizer.recognize_mic_stream(recognizers["general"],
+            #                                                args.samplerate,
+            #                                                args.device_index,
+            #                                                True)
+            # print(f'la frase humana {str(human_phrase)}')
+            # print(f'numeros de la frase {str(spanish_numbers_understander.extract_integers_from_phrase(human_phrase))}')
+            phrase = recognizer.recognize_mic_stream(recognizers["calculator_mode"],
+                                                     args.samplerate,
+                                                     args.device_index,
+                                                     return_phrase=False)
+            print(f'numeros de la frase {str(spanish_numbers_understander.extract_integers_from_phrase(phrase))}')
         except KeyboardInterrupt:
             print("\nExiting...")
-            break            
+            break
     exit()
 
 
