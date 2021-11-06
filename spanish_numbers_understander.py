@@ -178,9 +178,19 @@ def extract_integers_from_phrase(phrase):
     return integers
 
 
+def extract_mathematical_operators(phrase):
+    if len(phrase) == 0:
+        return None
+    operators = []
+    for word in phrase.split():
+        if word in OPERADORES_MATEMATICOS:
+            operators.append(word)
+    return operators
+
+
 if __name__ == "__main__":
     test = "test"
-    # print(extract_integers_from_phrase("tengo ochocientas cuarenta y dos abejas en el panal dos"))
-    # print(extract_integers_from_phrase("cuanto es cuatro mil ochocientos noventa y cuatro mas doce mil doscientos mas "
-    #                                    "cuatrocientos noventa y seis"))
-    #print(extract_integers_from_phrase("dos millones trescientos treinta y tres mil cuatrocientos noventa y cuatro"))
+    print(extract_integers_from_phrase("tengo ochocientas cuarenta y dos abejas en el panal dos"))
+    print(extract_integers_from_phrase("cuanto es cuatro mil ochocientos noventa y cuatro mas doce mil doscientos mas "
+                                       "cuatrocientos noventa y seis"))
+    print(extract_integers_from_phrase("dos millones trescientos treinta y tres mil cuatrocientos noventa y cuatro"))

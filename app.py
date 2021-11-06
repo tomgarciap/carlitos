@@ -11,6 +11,7 @@ import recognizer
 import tts
 import sound_maker
 import spanish_numbers_understander
+import calculadora
 
 WAKE_WITH_SOUND = True
 
@@ -91,26 +92,48 @@ recognizers = {
 }
 
 
+def calculator_use_case():
+    phrase = recognizer.recognize_mic_stream(recognizers["calculator_mode"],
+                                             args.samplerate,
+                                             args.device_index,
+                                             return_phrase=True)
+    integers_in_phrase = spanish_numbers_understander.extract_integers_from_phrase(phrase)
+    print(f'Enteros de la frase {str(integers_in_phrase)}')
+    if len(integers_in_phrase) == 0:
+        return
+    if len(integers_in_phrase) == 1:
+        return integers_in_phrase[0]
+    operators_in_phrase = spanish_numbers_understander.extract_mathematical_operators(phrase)
+    operation_elements = [integers_in_phrase.pop(0)]
+    for index in range(len(operators_in_phrase)):
+        operation_elements.append(operators_in_phrase[index])
+        operation_elements.append(integers_in_phrase[index])
+    result = calculadora.calculate_operation_result(operation_elements)
+    print(result)
+
+
+def general_use_case():
+    human_phrase = recognizer.recognize_mic_stream(recognizers["general"],
+                                                   args.samplerate,
+                                                   args.device_index,
+                                                   True)
+    print(f'la frase humana {str(human_phrase)}')
+    print(f'numeros de la frase {str(spanish_numbers_understander.extract_integers_from_phrase(human_phrase))}')
+
+
+def wake_word_use_case():
+    wait_for_wake_word_state.enter_state(recognizers["wake_word"],
+                                         args.wake_word,
+                                         args.device_index,
+                                         args.samplerate)
+    sound_maker.make_wake_sound()
+
+
 async def app():
     print("corriendo asistente")
     while True:
         try:
-            # wait_for_wake_word_state.enter_state(recognizers["wake_word"],
-            #                                      args.wake_word,
-            #                                      args.device_index,
-            #                                      args.samplerate)
-            # sound_maker.make_wake_sound()
-            # human_phrase = recognizer.recognize_mic_stream(recognizers["general"],
-            #                                                args.samplerate,
-            #                                                args.device_index,
-            #                                                True)
-            # print(f'la frase humana {str(human_phrase)}')
-            # print(f'numeros de la frase {str(spanish_numbers_understander.extract_integers_from_phrase(human_phrase))}')
-            phrase = recognizer.recognize_mic_stream(recognizers["calculator_mode"],
-                                                     args.samplerate,
-                                                     args.device_index,
-                                                     return_phrase=False)
-            print(f'numeros de la frase {str(spanish_numbers_understander.extract_integers_from_phrase(phrase))}')
+            calculator_use_case()
         except KeyboardInterrupt:
             print("\nExiting...")
             break

@@ -8,11 +8,11 @@ def calculate_operation_result(operation_elements):
     if len(operation_elements) == 0:
         return 0
     terms = get_terms(operation_elements)
-    result = execute_calculation_on_elements(terms)
+    result = _execute_calculation_on_elements(terms)
     return result
 
 
-def execute_calculation_on_elements(terms):
+def _execute_calculation_on_elements(terms):
     if len(terms) == 0:
         return 0
     first_term = terms.pop(0)
@@ -24,7 +24,7 @@ def execute_calculation_on_elements(terms):
         else:
             raise Exception(f"El primer elemento debe ser un número {first_term}")
     elif isinstance(first_term, list):
-        result = execute_calculation_on_elements(first_term)
+        result = _execute_calculation_on_elements(first_term)
     else:
         raise Exception("El primer elemento debe ser un número o una lista")
     previous_operator_buffer = None
@@ -43,7 +43,7 @@ def execute_calculation_on_elements(terms):
                 else:
                     raise Exception("Tipo de dato no soportado")
             elif isinstance(operation_element, list):
-                number_element = execute_calculation_on_elements(operation_element)
+                number_element = _execute_calculation_on_elements(operation_element)
             else:
                 raise Exception("Tipo de dato no soportado")
             if previous_operator_buffer == "más":
@@ -67,7 +67,7 @@ def get_terms(operation_elements):
 
     str_list = ""
     for operation_element in operation_elements:
-        str_list += " " + operation_element
+        str_list += " " + str(operation_element)
     regex_string = ''
     for index in range(len(OPERADORES_ADITIVOS_Y_SUBSTRACTIVOS)):
         if index == 0:
