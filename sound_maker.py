@@ -6,7 +6,7 @@ chunk = 1024
 
 
 def make_wake_sound():
-    f = wave.open(r"downloaded_sounds/hard-tone.wav", "rb")
+    f = wave.open(r"downloaded_sounds/hard-tone-modif-1.wav", "rb")
     p = pyaudio.PyAudio()
     stream = p.open(format=p.get_format_from_width(f.getsampwidth()),
                     channels=f.getnchannels(),

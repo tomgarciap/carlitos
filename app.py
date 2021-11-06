@@ -127,7 +127,6 @@ def wake_word_use_case():
                                          args.wake_word,
                                          args.device_index,
                                          args.samplerate)
-    sound_maker.make_wake_sound()
 
 
 async def wake_and_calculate():

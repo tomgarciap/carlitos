@@ -4,7 +4,7 @@ import sounddevice as sd
 import vosk
 import sys
 import json
-
+import sound_maker
 
 def create_model(model_path):
     return vosk.Model(model_path)
@@ -39,7 +39,7 @@ def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
             print('#' * 80)
             print('Grabando.. Tirar CTRL + C para salir de la app.')
             print('#' * 80)
-
+            sound_maker.make_wake_sound()
             while True:
                 mic_data = q.get()
                 if recognizerI.AcceptWaveform(mic_data):
