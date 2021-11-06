@@ -92,7 +92,7 @@ recognizers = {
 }
 
 
-def calculator_use_case():
+async def calculator_use_case():
     phrase = recognizer.recognize_mic_stream(recognizers["calculator_mode"],
                                              args.samplerate,
                                              args.device_index,
@@ -110,6 +110,7 @@ def calculator_use_case():
         operation_elements.append(integers_in_phrase[index])
     result = calculadora.calculate_operation_result(operation_elements)
     print(result)
+    await tts.say(result)
 
 
 def general_use_case():
@@ -129,11 +130,16 @@ def wake_word_use_case():
     sound_maker.make_wake_sound()
 
 
+async def wake_and_calculate():
+    wake_word_use_case()
+    await calculator_use_case()
+
+
 async def app():
     print("corriendo asistente")
     while True:
         try:
-            calculator_use_case()
+            await wake_and_calculate()
         except KeyboardInterrupt:
             print("\nExiting...")
             break
