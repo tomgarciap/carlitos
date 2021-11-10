@@ -7,7 +7,7 @@ OPERADORES_ADITIVOS_Y_SUBSTRACTIVOS = ["más", "menos"]
 def calculate_operation_result(operation_elements):
     if len(operation_elements) == 0:
         return 0
-    terms = get_terms(operation_elements)
+    terms = _get_separate_terms(operation_elements)
     result = _execute_calculation_on_elements(terms)
     return result
 
@@ -59,7 +59,7 @@ def _execute_calculation_on_elements(terms):
     return result
 
 
-def get_terms(operation_elements):
+def _get_separate_terms(operation_elements):
     def not_empty(element):
         if isinstance(element, str):
             element = element.strip()
@@ -68,15 +68,23 @@ def get_terms(operation_elements):
     str_list = ""
     for operation_element in operation_elements:
         str_list += " " + str(operation_element)
-    regex_string = ''
+    regex_matcher = ''
     for index in range(len(OPERADORES_ADITIVOS_Y_SUBSTRACTIVOS)):
         if index == 0:
-            regex_string += OPERADORES_ADITIVOS_Y_SUBSTRACTIVOS[index]
+            regex_matcher += OPERADORES_ADITIVOS_Y_SUBSTRACTIVOS[index]
         else:
-            regex_string += f' |{OPERADORES_ADITIVOS_Y_SUBSTRACTIVOS[index]} '
-    str_terms = re.split(regex_string, str_list)
+            regex_matcher += f' |{OPERADORES_ADITIVOS_Y_SUBSTRACTIVOS[index]} '
+    str_terms = re.split(regex_matcher, str_list)
     non_null_str_terms = list(filter(not_empty, str_terms))
     operadores_ad_sub = list(filter(lambda x: x in OPERADORES_ADITIVOS_Y_SUBSTRACTIVOS, operation_elements))
+    if len(operadores_ad_sub) == 0:
+        if len(non_null_str_terms) != 1:
+            raise Exception("No se encontrarón separadores de terminos y no se encontró solamente ún termino")
+        stripped_term = non_null_str_terms[0].strip()
+        if " " in stripped_term:
+            return stripped_term.split()
+        else:
+            return stripped_term
     terms = []
     for index in range(len(non_null_str_terms)):
         if index == 0:
@@ -88,7 +96,6 @@ def get_terms(operation_elements):
                 terms.append(stripped_term.split())
             else:
                 terms.append(stripped_term)
-
     return terms
 
 
