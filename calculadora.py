@@ -88,7 +88,12 @@ def _get_separate_terms(operation_elements):
     terms = []
     for index in range(len(non_null_str_terms)):
         if index == 0:
-            terms.append(non_null_str_terms[index].strip())
+            stripped_term = non_null_str_terms[0].strip()
+            if " " in stripped_term:
+                stripped_term = stripped_term.split()
+            else:
+                stripped_term = stripped_term
+            terms.append(stripped_term)
         else:
             terms.append(operadores_ad_sub[index - 1])
             stripped_term = non_null_str_terms[index].strip()
