@@ -10,6 +10,11 @@ import tts
 import sound_maker
 
 
+def run_wake_sound_thread():
+    thread = Thread(target=sound_maker.make_wake_sound)
+    thread.start()
+
+
 class WakeWordAwaitingState(Thread):
 
     def __init__(
@@ -50,18 +55,16 @@ class WakeWordAwaitingState(Thread):
                             print(self.recognizers["wake_mode"].Result())
                             rec_result = self.recognizers["wake_mode"].Result()
                             if self._wake_word in rec_result:
-                                sound_maker.make_wake_sound()
+                                run_wake_sound_thread()
                                 recognizer_status = "calculator_mode"
                                 print("Enter calculator mode")
-                                self.recognizers["wake_mode"].Reset()
                         else:
                             print(self.recognizers["wake_mode"].PartialResult())
                             rec_result = self.recognizers["wake_mode"].PartialResult()
                             if self._wake_word in rec_result:
-                                sound_maker.make_wake_sound()
+                                run_wake_sound_thread()
                                 recognizer_status = "calculator_mode"
                                 print("Enter calculator mode")
-                                self.recognizers["wake_mode"].Reset()
                     elif recognizer_status == "calculator_mode":
                         if self.recognizers["calculator_mode"].AcceptWaveform(data):
                             phrase = json.loads(self.recognizers["calculator_mode"].Result())["text"]
@@ -81,6 +84,7 @@ class WakeWordAwaitingState(Thread):
                             result = calculadora.calculate_operation_result(operation_elements)
                             print(result)
                             await tts.say(result)
+                            self.recognizers["wake_mode"].Reset()
                             print("Enter wake mode")
                             self.recognizers["calculator_mode"].Reset()
                         else:
