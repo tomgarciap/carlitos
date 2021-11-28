@@ -7,6 +7,7 @@ import json
 import spanish_numbers_understander
 import calculadora
 import tts
+import sound_maker
 
 
 class WakeWordAwaitingState(Thread):
@@ -33,9 +34,9 @@ class WakeWordAwaitingState(Thread):
             q.put(bytes(indata))
 
         try:
-            if self._samplerate is None:
-                device_info = sd.query_devices(self._device_index, 'input')
-                self._samplerate = int(device_info['default_samplerate'])
+            device_info = sd.query_devices(self._device_index, 'input')
+            print(device_info)
+            # self._samplerate = int(device_info['default_samplerate'])
 
             with sd.RawInputStream(samplerate=self._samplerate, blocksize=8000, device=self._device_index,
                                    dtype='int16',
@@ -49,18 +50,22 @@ class WakeWordAwaitingState(Thread):
                             print(self.recognizers["wake_mode"].Result())
                             rec_result = self.recognizers["wake_mode"].Result()
                             if self._wake_word in rec_result:
+                                sound_maker.make_wake_sound()
                                 recognizer_status = "calculator_mode"
                                 print("Enter calculator mode")
+                                self.recognizers["wake_mode"].Reset()
                         else:
                             print(self.recognizers["wake_mode"].PartialResult())
                             rec_result = self.recognizers["wake_mode"].PartialResult()
                             if self._wake_word in rec_result:
+                                sound_maker.make_wake_sound()
                                 recognizer_status = "calculator_mode"
                                 print("Enter calculator mode")
+                                self.recognizers["wake_mode"].Reset()
                     elif recognizer_status == "calculator_mode":
-                        print("Enter calculator mode")
                         if self.recognizers["calculator_mode"].AcceptWaveform(data):
                             phrase = json.loads(self.recognizers["calculator_mode"].Result())["text"]
+                            recognizer_status = "wake_mode"
                             print(f'Frase: {phrase}')
                             integers_in_phrase = spanish_numbers_understander.extract_integers_from_phrase(phrase)
                             print(f'Enteros de la frase {str(integers_in_phrase)}')
@@ -76,8 +81,8 @@ class WakeWordAwaitingState(Thread):
                             result = calculadora.calculate_operation_result(operation_elements)
                             print(result)
                             await tts.say(result)
-                            recognizer_status = "wake_mode"
                             print("Enter wake mode")
+                            self.recognizers["calculator_mode"].Reset()
                         else:
                             print(self.recognizers["calculator_mode"].PartialResult())
         finally:
