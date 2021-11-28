@@ -55,7 +55,7 @@ if not os.path.exists(args.model_path):
     print("No se encontró el modelo, descargate el unico en español de aca https://alphacephei.com/vosk/models")
     print("Y unzipealo en esta misma carpeta y cambiale el nombre a model-es.")
     parser.exit(0)
-if args.assitant_mode not in ["carlitos", "reconocedor_general"]:
+if args.assitant_mode not in ["carlitos", "reconocedor_general", "carlitos_premium"]:
     print("El modo debe ser carlitos o reconocedor_general")
     parser.exit(0)
 app = App()
