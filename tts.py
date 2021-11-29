@@ -7,5 +7,4 @@ async def say(text):
 
 
 if __name__ == "__main__":
-    asyncio.run(say('Dale wacho, requetebien piola. Cajetiala toda gato, oh my god. '
-                    'Y andate a la concha de tu madre all boys, 452'))
+    asyncio.run(say('lo vamos a hacer por la oreja. ¿Por la oreja?'))

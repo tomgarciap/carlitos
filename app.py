@@ -58,7 +58,8 @@ class App:
         recognizers = {
             "wake_mode": recognizer.create_recognizer(model, samplerate, [wake_word]),
             "general": recognizer.create_recognizer(model, samplerate, []),
-            "calculator_mode": recognizer.create_recognizer(model, samplerate, spanish_numbers_understander.get_domain_dictionary())
+            "calculator_mode": recognizer.create_recognizer(model, samplerate, spanish_numbers_understander.get_domain_dictionary()),
+            "chiste_yayo_mode": recognizer.create_recognizer(model, samplerate, ["chiste yayo"])
         }
         while True:
             try:

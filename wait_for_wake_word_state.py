@@ -2,7 +2,7 @@ from threading import Thread
 import queue
 import sounddevice as sd
 import sys
-import vosk
+import contador_de_chistes
 import json
 import spanish_numbers_understander
 import calculadora
@@ -14,6 +14,7 @@ def run_wake_sound_thread():
     thread = Thread(target=sound_maker.make_wake_sound)
     thread.start()
 
+CHISTE_YAYO = "chiste yayo"
 
 class WakeWordAwaitingState(Thread):
 
@@ -58,6 +59,7 @@ class WakeWordAwaitingState(Thread):
                                 run_wake_sound_thread()
                                 recognizer_status = "calculator_mode"
                                 print("Enter calculator mode")
+                                self.recognizers["calculator_mode"].Reset()
                         else:
                             print(self.recognizers["wake_mode"].PartialResult())
                             rec_result = self.recognizers["wake_mode"].PartialResult()
@@ -65,7 +67,17 @@ class WakeWordAwaitingState(Thread):
                                 run_wake_sound_thread()
                                 recognizer_status = "calculator_mode"
                                 print("Enter calculator mode")
+                                self.recognizers["calculator_mode"].Reset()
                     elif recognizer_status == "calculator_mode":
+                        # copy_for_yayo = bytes(bytearray(data))
+                        # if self.recognizers["chiste_yayo_mode"].AcceptWaveform(copy_for_yayo):
+                        #     phrase = json.loads(self.recognizers["calculator_mode"].Result())["text"]
+                        #     if CHISTE_YAYO in phrase:
+                        #         recognizer_status = "wake_mode"
+                        #         contador_de_chistes.contar_chiste()
+                        #         self.recognizers["wake_mode"].Reset()
+                        #         print("Enter wake mode")
+                        #         return
                         if self.recognizers["calculator_mode"].AcceptWaveform(data):
                             phrase = json.loads(self.recognizers["calculator_mode"].Result())["text"]
                             recognizer_status = "wake_mode"
@@ -86,9 +98,9 @@ class WakeWordAwaitingState(Thread):
                             await tts.say(result)
                             self.recognizers["wake_mode"].Reset()
                             print("Enter wake mode")
-                            self.recognizers["calculator_mode"].Reset()
                         else:
-                            print(self.recognizers["calculator_mode"].PartialResult())
+                            partial_result = self.recognizers["calculator_mode"].PartialResult()
+                            print(partial_result)
         finally:
             for key, value in self.recognizers.items():
                 value.Reset()
