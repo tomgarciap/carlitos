@@ -23,7 +23,7 @@ NUMEROS = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "oc
                           "novecientos", "novecientas"]
 
 PRE_DECIMALES = ["ciento", "mil", "millón", "millones", "billón", "billones", "trillón", "trillones"]
-PRE_DECIMALES_MULTIPLICADOR = {
+PRE_DECIMALES_EN_ENTEROS = {
     "ciento": 100,
     "mil": 1000,
     "millón": 1000000,
@@ -103,6 +103,8 @@ def get_integer_from_numeric_word(numeric_word):
         raise Exception("La palabra debe ser siempre un string")
     if is_a_number(numeric_word):
         return NUMEROS_EN_ENTEROS[numeric_word]
+    if is_a_pre_decimal(numeric_word):
+        return PRE_DECIMALES_EN_ENTEROS[numeric_word]
     else:
         raise Exception("La palabra no es un numero")
 
@@ -111,7 +113,7 @@ def get_pre_decimal_multiplicator(numeric):
     if not isinstance(numeric, str):
         raise Exception("La palabra debe ser siempre un string")
     if is_a_pre_decimal(numeric):
-        return PRE_DECIMALES_MULTIPLICADOR[numeric]
+        return PRE_DECIMALES_EN_ENTEROS[numeric]
     else:
         raise Exception("La palabra no es un pre decimal")
 
@@ -194,3 +196,4 @@ if __name__ == "__main__":
     print(extract_integers_from_phrase("cuanto es cuatro mil ochocientos noventa y cuatro mas doce mil doscientos mas "
                                        "cuatrocientos noventa y seis"))
     print(extract_integers_from_phrase("dos millones trescientos treinta y tres mil cuatrocientos noventa y cuatro"))
+    print(extract_integers_from_phrase('cuanto es seiscientos más cinco mil más ochocientos más quinientos más mil más dos mil'))
