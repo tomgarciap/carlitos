@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 from vosk import Model, KaldiRecognizer, SetLogLevel
-import sys
-import os
 import wave
 import json
+
 
 def reconocedor(file_path):
     SetLogLevel(0)
@@ -19,11 +18,15 @@ def reconocedor(file_path):
         data = wf.readframes(4000)
         if len(data) == 0:
             break
-        rec.AcceptWaveform(data)
+        if rec.AcceptWaveform(data):
+            print(rec.Result())
+        else:
+            print(rec.PartialResult())
     result = rec.FinalResult()
     result_json = json.loads(result)
     result_text = result_json["text"]
     print(f"Resultado para audio: {file_path} es {result_text}")
+
 
 if __name__ == "__main__":
     reconocedor("recorded_sounds/1.wav")
