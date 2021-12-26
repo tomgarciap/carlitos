@@ -1,6 +1,8 @@
-# carlitos
-Voice assistant carlitos
-# instalaciones
+# Desarrollado con la version de Vosk: 
+# Upgrade 25/12/2021 0.3.31 -> 0.3.32
+# Carlitos 
+Voice assistant Carlitos
+# Instalaciones
 1 - crear con conda un entorno de python 3.9
 
 2 - instalar vosk siguiendo la guia en la pagina
