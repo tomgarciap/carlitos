@@ -39,7 +39,7 @@ def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
             print('#' * 80)
             print('Grabando.. Tirar CTRL + C para salir de la app.')
             print('#' * 80)
-            sound_maker.make_wake_sound()
+            # sound_maker.make_wake_sound()
             while True:
                 mic_data = q.get()
                 if recognizerI.AcceptWaveform(mic_data):
@@ -50,7 +50,7 @@ def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
                         else:
                             phrase = phrase_object["text"]
                             return
-                    print(recognizerI.Result())
+                    print(recognizerI.FinalResult())
                 else:
                     print(recognizerI.PartialResult())
                 
