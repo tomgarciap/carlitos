@@ -59,7 +59,7 @@ class WakeWordAwaitingState(Thread):
         def callback(indata, frames, time, status):
             """This is called (from a separate thread) for each audio block."""
             if status:
-                print(status, file=sys.stderr)
+                print(status)
             q.put(bytes(indata))
 
         try:
@@ -71,9 +71,11 @@ class WakeWordAwaitingState(Thread):
             collected_calculator_phrases = list()
             print("Booting system...")
             time.sleep(5)
-            with sd.RawInputStream(samplerate=self._samplerate, blocksize=8000, device=self._device_index,
-                                   dtype='int16',
-                                   channels=1, callback=callback):
+            blocksizex = 8000
+            print("Running microphone with: Sample rate -> " + self._samplerate
+                  + " Block Size -> " + blocksizex + " Device index -> " + self._device_index)
+            with sd.RawInputStream(samplerate=self._samplerate, blocksize=blocksizex, device=self._device_index,
+                                   dtype='int16', channels=1, callback=callback):
                 recognizer_status = "wake_mode"
                 print("Entering wake mode..")
                 while True:

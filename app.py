@@ -69,6 +69,7 @@ class App:
                                                            recognizers["calculator"])
                 elif app_mode == "reconocedor_general":
                     await self.general_use_case(samplerate, device_index, recognizers["calculator_mode"])
+                    print("Test finished..")
                 elif app_mode == "carlitos_premium":
                     await wait_for_wake_word_state.enter_state(recognizers,
                                                                wake_word,

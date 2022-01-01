@@ -34,8 +34,11 @@ def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
             device_info = sd.query_devices(device_index, 'input')
             samplerate = int(device_info['default_samplerate'])
         phrase = ""
-        with sd.RawInputStream(samplerate=samplerate, blocksize=8000, device=device_index, dtype='int16',
-                               channels=1, callback=callback):
+        blocksizex = 8000
+        print("Running microphone with: Sample rate -> " + str(samplerate)
+              + " Block Size -> " + str(blocksizex) + " Device index -> " + str(device_index))
+        with sd.RawInputStream(samplerate=samplerate, blocksize=blocksizex, device=device_index,
+                               dtype='int16', channels=1, callback=callback):
             print('#' * 80)
             print('Grabando.. Tirar CTRL + C para salir de la app.')
             print('#' * 80)
@@ -44,7 +47,7 @@ def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
                 mic_data = q.get()
                 if recognizerI.AcceptWaveform(mic_data):
                     if return_phrase:
-                        phrase_object = json.loads(recognizerI.Result())
+                        phrase_object = json.loads(recognizerI.FinalResult())
                         if phrase_object["text"] == '':
                             continue
                         else:
@@ -52,10 +55,12 @@ def recognize_mic_stream(recognizerI: vosk.KaldiRecognizer,
                             return
                     print(recognizerI.FinalResult())
                 else:
-                    print(recognizerI.PartialResult())
+                    partial_result = json.loads(recognizerI.PartialResult())["partial"]
+                    print("Partial result: " + partial_result)
                 
     except Exception as e:
-        return type(e).__name__ + ': ' + str(e)
+        print(type(e).__name__ + ': ' + str(e))
+        return None
     finally:
         recognizerI.Reset()
         print("Resetting general recognizer.. ")
