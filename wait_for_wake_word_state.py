@@ -50,8 +50,6 @@ class WakeWordAwaitingState(Thread):
         result = calculadora.calculate_operation_result(operation_elements)
         print(result)
         await tts.say(result)
-        self.recognizers["wake_mode"].Reset()
-        print("Enter wake mode")
 
     async def run(self):
         q = queue.Queue()
@@ -66,60 +64,50 @@ class WakeWordAwaitingState(Thread):
             device_info = sd.query_devices(self._device_index, 'input')
             print(device_info)
             # self._samplerate = int(device_info['default_samplerate'])
-            milliseconds_without_words = 0
-            start_epoch = int(time.time() * 100)
-            collected_calculator_phrases = list()
+            start_epoch = int(time.time() * 100) # millisecods
             print("Booting system...")
-            time.sleep(5)
+            time.sleep(1.5)
             blocksizex = 8000
-            print("Running microphone with: Sample rate -> " + self._samplerate
-                  + " Block Size -> " + blocksizex + " Device index -> " + self._device_index)
+            print("Running microphone with: Sample rate -> " + str(self._samplerate)
+                  + " Block Size -> " + str(blocksizex) + " Device index -> " + str(self._device_index))
             with sd.RawInputStream(samplerate=self._samplerate, blocksize=blocksizex, device=self._device_index,
                                    dtype='int16', channels=1, callback=callback):
                 recognizer_status = "wake_mode"
-                print("Entering wake mode..")
+                print("Entering .." + recognizer_status)
                 while True:
                     data = q.get()
+                    if data is None:
+                        continue
                     if recognizer_status == "wake_mode":
                         if self.recognizers["wake_mode"].AcceptWaveform(data):
                             rec_result = self.recognizers["wake_mode"].Result()
                             if self._wake_word in rec_result:
-                                run_wake_sound_thread()
+                                #run_wake_sound_thread()
                                 recognizer_status = "calculator_mode"
                                 self.recognizers["wake_mode"].Reset()
                                 print("Enter calculator mode..")
                         else:
                             rec_result = self.recognizers["wake_mode"].PartialResult()
                             if self._wake_word in rec_result:
-                                run_wake_sound_thread()
+                                #run_wake_sound_thread()
                                 recognizer_status = "calculator_mode"
                                 self.recognizers["wake_mode"].Reset()
                                 print("Enter calculator mode..")
                     elif recognizer_status == "calculator_mode":
-                        no_words = True
                         if self.recognizers["calculator_mode"].AcceptWaveform(data):
-                            phrase = json.loads(self.recognizers["calculator_mode"].Result())["text"]
-                            collected_calculator_phrases.append(phrase)
-                            print("Result: " + phrase)
-                            if phrase == "":
-                                no_words = True
-                            if milliseconds_without_words > 3000:
-                                final_phrase = json.loads(self.recognizers["calculator_mode"].FinalResult())["text"]
-                                if final_phrase != "":
-                                    await self.execute_command(final_phrase)
-                                else:
-                                    milliseconds_without_words = 0
-                                    recognizer_status = "wake_mode"
-                                    self.recognizers["calculator_mode"].Reset()
+                            final_phrase = json.loads(self.recognizers["calculator_mode"].FinalResult())["text"]
+                            print("Result: " + final_phrase)
+                            if not (final_phrase is None or  final_phrase == ""):
+                                await self.execute_command(final_phrase)
+                                q.get()
+                                recognizer_status = "wake_mode"
+                            else:
+                                recognizer_status = "wake_mode"
+                                self.recognizers["calculator_mode"].Reset()
+                                time.sleep(0.3)
                         else:
                             partial_result = json.loads(self.recognizers["calculator_mode"].PartialResult())["partial"]
-                            if partial_result == "":
-                                no_words = True
                             print("Partial result: " + partial_result)
-                        if no_words:
-                            milliseconds_without_words += (int(time.time()) * 100) - start_epoch
-                        #print(milliseconds_without_words)
-
         finally:
             for key, value in self.recognizers.items():
                 value.Reset()
