@@ -2,6 +2,12 @@ import re
 
 OPERADORES_MATEMATICOS = ["más", "menos", "dividido", "por", "sobre"]
 OPERADORES_ADITIVOS_Y_SUBSTRACTIVOS = ["más", "menos"]
+OPERADORES_MATEMATICOS_SIMBOLOS = {
+    "más": "+",
+    "menos": "-",
+    "dividido": "/",
+    "por": "*"
+}
 
 
 def calculate_operation_result(operation_elements):
@@ -13,14 +19,17 @@ def calculate_operation_result(operation_elements):
 
 
 def _execute_calculation_on_elements(terms):
+    calculo_en_string = ""
     if len(terms) == 0:
         return 0
     first_term = terms.pop(0)
     if isinstance(first_term, int):
         result = first_term
+        calculo_en_string += str(first_term)
     elif isinstance(first_term, str):
         if first_term.isnumeric():
             result = int(first_term)
+            calculo_en_string += first_term
         else:
             raise Exception(f"El primer elemento debe ser un número {first_term}")
     elif isinstance(first_term, list):
@@ -46,6 +55,7 @@ def _execute_calculation_on_elements(terms):
                 number_element = _execute_calculation_on_elements(operation_element)
             else:
                 raise Exception("Tipo de dato no soportado")
+            calculo_en_string += " " + OPERADORES_MATEMATICOS_SIMBOLOS[previous_operator_buffer] + " " + str(number_element)
             if previous_operator_buffer == "más":
                 result = result + number_element
             elif previous_operator_buffer == "menos":
@@ -56,6 +66,7 @@ def _execute_calculation_on_elements(terms):
                 result = result * number_element
             elif previous_operator_buffer == "sobre":
                 result = result / number_element
+    print (calculo_en_string + " = " + str(result))
     return result
 
 

@@ -35,9 +35,9 @@ class WakeWordAwaitingState(Thread):
         self._samplerate = samplerate
 
     async def execute_command(self, phrase):
-        print(f'Frase: {phrase}')
+        # print(f'Frase: {phrase}')
         integers_in_phrase = spanish_numbers_understander.extract_integers_from_phrase(phrase)
-        print(f'Enteros de la frase {str(integers_in_phrase)}')
+        # print(f'Enteros de la frase {str(integers_in_phrase)}')
         if len(integers_in_phrase) == 0:
             return
         if len(integers_in_phrase) == 1:
@@ -48,7 +48,6 @@ class WakeWordAwaitingState(Thread):
             operation_elements.append(operators_in_phrase[index])
             operation_elements.append(integers_in_phrase[index])
         result = calculadora.calculate_operation_result(operation_elements)
-        print(result)
         await tts.say(result)
 
     async def run(self):
