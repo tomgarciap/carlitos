@@ -72,7 +72,7 @@ class WakeWordAwaitingState(Thread):
             with sd.RawInputStream(samplerate=self._samplerate, blocksize=blocksizex, device=self._device_index,
                                    dtype='int16', channels=1, callback=callback):
                 recognizer_status = "wake_mode"
-                print("Entering .." + recognizer_status)
+                print(f"Entering {recognizer_status}..")
                 while True:
                     data = q.get()
                     if data is None:
@@ -81,30 +81,68 @@ class WakeWordAwaitingState(Thread):
                         if self.recognizers["wake_mode"].AcceptWaveform(data):
                             rec_result = self.recognizers["wake_mode"].Result()
                             if self._wake_word in rec_result:
-                                recognizer_status = "calculator_mode"
+                                recognizer_status = "action_mode"
                                 self.recognizers["wake_mode"].Reset()
-                                print("Enter calculator mode..")
+                                print("Enter action mode..")
                         else:
                             rec_result = self.recognizers["wake_mode"].PartialResult()
                             if self._wake_word in rec_result:
-                                recognizer_status = "calculator_mode"
+                                recognizer_status = "action_mode"
                                 self.recognizers["wake_mode"].Reset()
-                                print("Enter calculator mode..")
-                    elif recognizer_status == "calculator_mode":
+                                print("Enter action mode..")
+                    elif recognizer_status == "action_mode":
+                        calendar_partial_result = self.recognizers["calendar_mode"].PartialResult()
+                        if self.recognizers["calendar_mode"].AcceptWaveform(data):
+                            print(f"Calendar partial result: {calendar_partial_result}")
+                            if "que tengo hoy" in calendar_partial_result:
+                                # API Call y volver al wake mode
+                                recognizer_status = "wake_mode"
+                                self.recognizers["calendar_mode"].Reset()
+                                print("Enter wake mode")
                         if self.recognizers["calculator_mode"].AcceptWaveform(data):
-                            final_phrase = json.loads(self.recognizers["calculator_mode"].FinalResult())["text"]
-                            print("Result: " + final_phrase)
-                            if not (final_phrase is None or  final_phrase == ""):
-                                await self.execute_command(final_phrase)
-                                q.get()
-                                recognizer_status = "wake_mode"
-                            else:
-                                recognizer_status = "wake_mode"
-                                self.recognizers["calculator_mode"].Reset()
-                                time.sleep(0.3)
-                        else:
-                            partial_result = json.loads(self.recognizers["calculator_mode"].PartialResult())["partial"]
-                            print("Partial result: " + partial_result)
+                            calculator_partial_result = self.recognizers["calculator_mode"].PartialResult()
+                            print(f"Calculator partial result: {calculator_partial_result}")
+                            if "cuanto es" in calculator_partial_result:
+                                print("Calculator escuchando")
+                                final_phrase = json.loads(self.recognizers["calculator_mode"].FinalResult())["text"]
+                                print("Result: " + final_phrase)
+                                if not (final_phrase is None or  final_phrase == ""):
+                                    await self.execute_command(final_phrase)
+                                    q.get()
+                                    recognizer_status = "wake_mode"
+                                else:
+                                    recognizer_status = "wake_mode"
+                                    self.recognizers["calculator_mode"].Reset()
+                                    time.sleep(0.3)
+                        # if self.recognizers["calendar_mode"].AcceptWaveform(data):
+                        #     rec_result = self.recognizers["calendar_mode"].Result()
+                        #     if "que laburo" in rec_result:
+                        #         print("Entro en laburo calendar mode")
+                        #         recognizer_status = "calendar_mode"
+                        #         self.recognizers["calendar_mode"].Reset()
+                        #         print("Enter calendar mode..")
+                        # if self.recognizers["calculator_mode"].AcceptWaveform(data):
+                        #     rec_result = self.recognizers["calculator_mode"].Result()
+                        #     if "que laburo" in rec_result:
+                        #         print("Entro en laburo calendar mode")
+                        #         recognizer_status = "calendar_mode"
+                        #         self.recognizers["calendar_mode"].Reset()
+                        #         print("Enter calendar mode..")
+                        test = "test"
+                        # if self.recognizers["calculator_mode"].AcceptWaveform(data):
+                        #     final_phrase = json.loads(self.recognizers["calculator_mode"].FinalResult())["text"]
+                        #     print("Result: " + final_phrase)
+                        #     if not (final_phrase is None or  final_phrase == ""):
+                        #         await self.execute_command(final_phrase)
+                        #         q.get()
+                        #         recognizer_status = "wake_mode"
+                        #     else:
+                        #         recognizer_status = "wake_mode"
+                        #         self.recognizers["calculator_mode"].Reset()
+                        #         time.sleep(0.3)
+                        # else:
+                        #     partial_result = json.loads(self.recognizers["calculator_mode"].PartialResult())["partial"]
+                        #     print("Partial result: " + partial_result)
         finally:
             for key, value in self.recognizers.items():
                 value.Reset()

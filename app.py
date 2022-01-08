@@ -59,7 +59,8 @@ class App:
             "wake_mode": recognizer.create_recognizer(model, samplerate, [wake_word]),
             "general": recognizer.create_recognizer(model, samplerate, []),
             "calculator_mode": recognizer.create_recognizer(model, samplerate, spanish_numbers_understander.get_domain_dictionary()),
-            "chiste_yayo_mode": recognizer.create_recognizer(model, samplerate, ["chiste yayo"])
+            "chiste_yayo_mode": recognizer.create_recognizer(model, samplerate, ["chiste yayo"]),
+            "calendar_mode": recognizer.create_recognizer(model, samplerate, ["que tengo hoy"])
         }
         while True:
             try:
