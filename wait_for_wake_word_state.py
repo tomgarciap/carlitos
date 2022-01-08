@@ -81,14 +81,12 @@ class WakeWordAwaitingState(Thread):
                         if self.recognizers["wake_mode"].AcceptWaveform(data):
                             rec_result = self.recognizers["wake_mode"].Result()
                             if self._wake_word in rec_result:
-                                #run_wake_sound_thread()
                                 recognizer_status = "calculator_mode"
                                 self.recognizers["wake_mode"].Reset()
                                 print("Enter calculator mode..")
                         else:
                             rec_result = self.recognizers["wake_mode"].PartialResult()
                             if self._wake_word in rec_result:
-                                #run_wake_sound_thread()
                                 recognizer_status = "calculator_mode"
                                 self.recognizers["wake_mode"].Reset()
                                 print("Enter calculator mode..")
