@@ -1,15 +1,13 @@
 from threading import Thread
 import queue
 import sounddevice as sd
-import sys
-import contador_de_chistes
 import time
 import json
 import spanish_numbers_understander
 import calculadora
 import tts
 import sound_maker
-from datetime import datetime
+import google.calendar_client as g_client
 
 
 def run_wake_sound_thread():
@@ -94,8 +92,13 @@ class WakeWordAwaitingState(Thread):
                         calendar_partial_result = self.recognizers["calendar_mode"].PartialResult()
                         if self.recognizers["calendar_mode"].AcceptWaveform(data):
                             print(f"Calendar partial result: {calendar_partial_result}")
+                            events = g_client.get_calendar_events()
+
                             if "que tengo hoy" in calendar_partial_result:
-                                # API Call y volver al wake mode
+                                # ver que event es de hoy y anunciar hora de reunion y nombre
+                                for event in events:
+                                    start = event['start'].get('dateTime', event['start'].get('date'))
+                                    print(start, event['summary'])
                                 recognizer_status = "wake_mode"
                                 self.recognizers["calendar_mode"].Reset()
                                 print("Enter wake mode")
@@ -114,35 +117,7 @@ class WakeWordAwaitingState(Thread):
                                     recognizer_status = "wake_mode"
                                     self.recognizers["calculator_mode"].Reset()
                                     time.sleep(0.3)
-                        # if self.recognizers["calendar_mode"].AcceptWaveform(data):
-                        #     rec_result = self.recognizers["calendar_mode"].Result()
-                        #     if "que laburo" in rec_result:
-                        #         print("Entro en laburo calendar mode")
-                        #         recognizer_status = "calendar_mode"
-                        #         self.recognizers["calendar_mode"].Reset()
-                        #         print("Enter calendar mode..")
-                        # if self.recognizers["calculator_mode"].AcceptWaveform(data):
-                        #     rec_result = self.recognizers["calculator_mode"].Result()
-                        #     if "que laburo" in rec_result:
-                        #         print("Entro en laburo calendar mode")
-                        #         recognizer_status = "calendar_mode"
-                        #         self.recognizers["calendar_mode"].Reset()
-                        #         print("Enter calendar mode..")
                         test = "test"
-                        # if self.recognizers["calculator_mode"].AcceptWaveform(data):
-                        #     final_phrase = json.loads(self.recognizers["calculator_mode"].FinalResult())["text"]
-                        #     print("Result: " + final_phrase)
-                        #     if not (final_phrase is None or  final_phrase == ""):
-                        #         await self.execute_command(final_phrase)
-                        #         q.get()
-                        #         recognizer_status = "wake_mode"
-                        #     else:
-                        #         recognizer_status = "wake_mode"
-                        #         self.recognizers["calculator_mode"].Reset()
-                        #         time.sleep(0.3)
-                        # else:
-                        #     partial_result = json.loads(self.recognizers["calculator_mode"].PartialResult())["partial"]
-                        #     print("Partial result: " + partial_result)
         finally:
             for key, value in self.recognizers.items():
                 value.Reset()
