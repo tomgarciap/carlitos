@@ -7,6 +7,7 @@
 model-es/
 model/
 model-en/
+model-en-small/
 
 # Custom files
 created_sounds/

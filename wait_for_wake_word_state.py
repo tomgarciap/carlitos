@@ -1,15 +1,12 @@
 from threading import Thread
 import queue
 import sounddevice as sd
-import sys
-import contador_de_chistes
 import time
 import json
 import spanish_numbers_understander
 import calculadora
 import tts
 import sound_maker
-from datetime import datetime
 
 
 def run_wake_sound_thread():
@@ -35,9 +32,7 @@ class WakeWordAwaitingState(Thread):
         self._samplerate = samplerate
 
     async def execute_command(self, phrase):
-        # print(f'Frase: {phrase}')
         integers_in_phrase = spanish_numbers_understander.extract_integers_from_phrase(phrase)
-        # print(f'Enteros de la frase {str(integers_in_phrase)}')
         if len(integers_in_phrase) == 0:
             return
         if len(integers_in_phrase) == 1:
@@ -48,7 +43,10 @@ class WakeWordAwaitingState(Thread):
             operation_elements.append(operators_in_phrase[index])
             operation_elements.append(integers_in_phrase[index])
         result = calculadora.calculate_operation_result(operation_elements)
-        await tts.say(result)
+        try:
+            await tts.say(result)
+        except Exception as e:
+            print("Couldn't use system voice, carry on")
 
     async def run(self):
         q = queue.Queue()
@@ -62,17 +60,17 @@ class WakeWordAwaitingState(Thread):
         try:
             device_info = sd.query_devices(self._device_index, 'input')
             print(device_info)
-            # self._samplerate = int(device_info['default_samplerate'])
-            start_epoch = int(time.time() * 100) # millisecods
             print("Booting system...")
             time.sleep(1.5)
             blocksizex = 8000
+            print('#' * 80)
+            print('Grabando.. Apretar CTRL + C para salir de la app.')
+            print('#' * 80)
             print("Running microphone with: Sample rate -> " + str(self._samplerate)
                   + " Block Size -> " + str(blocksizex) + " Device index -> " + str(self._device_index))
-            with sd.RawInputStream(samplerate=self._samplerate, blocksize=blocksizex, device=self._device_index,
-                                   dtype='int16', channels=1, callback=callback):
+            with sd.RawInputStream(samplerate=self._samplerate, blocksize=blocksizex, device=self._device_index, dtype='int16', channels=1, callback=callback):
                 recognizer_status = "wake_mode"
-                print("Entering .." + recognizer_status)
+                print("Entering " + recognizer_status + "..")
                 while True:
                     data = q.get()
                     if data is None:
@@ -117,4 +115,3 @@ async def enter_state(recognizers, wake_word, device_index, samplerate):
                                 wake_word=wake_word,
                                 device_index=device_index,
                                 samplerate=samplerate).run()
-    print("Ending wake word thread")

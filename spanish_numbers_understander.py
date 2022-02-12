@@ -22,7 +22,7 @@ NUMEROS = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "oc
            "ochocientos", "ochocientas",
                           "novecientos", "novecientas"]
 
-PRE_DECIMALES = ["ciento", "mil", "millón", "millones", "billón", "billones", "trillón", "trillones"]
+PRE_DECIMALES = ["ciento", "mil", "millón", "millones", "billón", "billones", "trillones"]
 PRE_DECIMALES_EN_ENTEROS = {
     "ciento": 100,
     "mil": 1000,
