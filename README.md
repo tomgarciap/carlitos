@@ -1,5 +1,5 @@
 # Carlitos 
-Carlitos is an experimental voice assistant created using [Vosk API](https://github.com/alphacep/vosk-api). It has two modes: calculator mode and general recognizer mode. 
+Carlitos is a experimental voice recognizing app created using [Vosk API](https://github.com/alphacep/vosk-api). It has two modes: calculator mode and general recognizer mode. 
 
 On calculator mode, Carlitos listens to it's wake word and when it's awake it can translate some math calculation operations text into real mathematical operations, execute them and outputs the result on the terminal. If run in Mac it also uses the in built TTS to output the result in audio format. 
 
