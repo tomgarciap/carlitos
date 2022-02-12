@@ -39,4 +39,6 @@ Calculator mode:
     python ui.py -am=reconocedor_general -m=model-en
 
 # NOTE
+Special thanks to [Nickolay V. Shmyrev](https://github.com/nshmyrev) for building Vosk and sharing it to the world. 
+
 This is one of my pet projects and it emerges out of my passion for language models. If you have any questions about it or would like to contribute to this project feel free to send me an email: tomas.garcia.pineiro@gmail.com
