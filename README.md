@@ -5,7 +5,7 @@ On calculator mode, Carlitos listens to it's wake word and when it's awake it ca
 
 On general recognizer mode it just outputs recognized text in human speech in the terminal.
 
-## If you want to try it out, here are the steps to do it:
+# If you want to try it out, here are the steps to do it:
 Requirements:
 ```sh
 conda 4.10.3
